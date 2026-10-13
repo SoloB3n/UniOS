@@ -1,8 +1,10 @@
 # Strati di compatibilità
 # Windows: Wine (wine32:i386 viene aggiunto dall'hook 0100) + gestione prefissi
 wine
-wine64
 winetricks
+#if ARCHITECTURES amd64
+wine64
+#endif
 fonts-wine
 # MS-DOS
 dosbox
@@ -10,6 +12,8 @@ dosbox
 qemu-user
 qemu-user-binfmt
 binfmt-support
+# Immagini .dmg di macOS (7z/7zz leggono DMG, HFS+ e APFS)
+7zip
 # Formati di pacchetto Linux universali
 flatpak
 # Runtime Java e .NET/Mono

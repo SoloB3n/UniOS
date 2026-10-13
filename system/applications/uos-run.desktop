@@ -7,4 +7,10 @@ Exec=uos run %f
 Icon=application-x-executable
 Terminal=false
 NoDisplay=true
-MimeType=application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;application/x-ms-shortcut;application/x-mach-binary;application/x-executable;
+MimeType=application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;application/x-ms-shortcut;application/x-mach-binary;application/x-executable;application/x-apple-diskimage;application/x-xar;
+Actions=install;
+
+[Desktop Action install]
+Name=Installa con UniversalOS
+Name[en]=Install with UniversalOS
+Exec=uos install %f

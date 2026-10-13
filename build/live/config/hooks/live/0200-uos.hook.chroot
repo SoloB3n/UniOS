@@ -13,6 +13,8 @@ application/x-msdownload=uos-run.desktop
 application/vnd.microsoft.portable-executable=uos-run.desktop
 application/x-msi=uos-run.desktop
 application/x-mach-binary=uos-run.desktop
+application/x-apple-diskimage=uos-run.desktop
+application/x-xar=uos-run.desktop
 MIME
 # Abilita Flathub
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true

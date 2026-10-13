@@ -1,0 +1,9 @@
+#!/bin/sh
+# Solo su ARM64: box64 traduce al volo il codice x86_64, così si possono
+# eseguire programmi Linux x86_64 e, con un Wine x86_64 in /opt/uos/wine-x86_64,
+# anche programmi Windows x86_64.
+set -e
+[ "$(dpkg --print-architecture)" = arm64 ] || exit 0
+if ! apt-get install -y --no-install-recommends box64; then
+    echo "ATTENZIONE: box64 non disponibile nei repository: aggiungilo in config/packages.chroot/" >&2
+fi

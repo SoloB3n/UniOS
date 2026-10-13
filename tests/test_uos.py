@@ -44,6 +44,18 @@ class Fixture(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
+        self.home = os.path.join(self.tmp.name, "home")
+        env = mock.patch.dict(os.environ, {
+            "HOME": self.home,
+            "XDG_CONFIG_HOME": os.path.join(self.home, ".config"),
+            "XDG_DATA_HOME": os.path.join(self.home, ".local/share"),
+            "XDG_CACHE_HOME": os.path.join(self.home, ".cache"),
+        })
+        env.start()
+        self.addCleanup(env.stop)
+        nosys = mock.patch("uos.profiles.SYSTEM_DIR", os.path.join(self.tmp.name, "etc-profiles"))
+        nosys.start()
+        self.addCleanup(nosys.stop)
 
     def write(self, name: str, data: bytes) -> str:
         path = os.path.join(self.tmp.name, name)
@@ -159,9 +171,22 @@ class PlanTests(Fixture):
         p = self.plan(pe(0x8664), "app.exe", available=("wine",), isolate=True)
         self.assertTrue(p.env["WINEPREFIX"].endswith("prefixes/app"))
 
-    def test_windows_exe_on_arm_goes_through_box64(self):
-        p = self.plan(pe(0x8664), "app.exe", host=d.ARM64, available=("wine", "box64"))
-        self.assertEqual(p.argv[:2], ["/usr/bin/box64", "/usr/bin/wine"])
+    def test_windows_x86_exe_on_arm_uses_x86_wine_under_box64(self):
+        x86_wine = self.write("opt/wine-x86_64/bin/wine", b"#!/bin/sh\n")
+        os.chmod(x86_wine, 0o755)
+        with mock.patch.dict(os.environ, {"UOS_X86_WINE": x86_wine}):
+            p = self.plan(pe(0x8664), "app.exe", host=d.ARM64, available=("wine", "box64"))
+        self.assertEqual(p.argv[:2], ["/usr/bin/box64", x86_wine])
+
+    def test_windows_x86_exe_on_arm_without_x86_wine(self):
+        with mock.patch.object(runners, "X86_WINE_CANDIDATES", []), \
+             mock.patch.dict(os.environ, {"UOS_X86_WINE": ""}):
+            with self.assertRaisesRegex(runners.RunnerError, "Wine x86_64"):
+                self.plan(pe(0x8664), "app.exe", host=d.ARM64, available=("wine", "box64"))
+
+    def test_windows_arm64_exe_on_arm_uses_native_wine(self):
+        p = self.plan(pe(0xAA64), "app.exe", host=d.ARM64, available=("wine",))
+        self.assertEqual(p.argv[0], "/usr/bin/wine")
 
     def test_msi(self):
         p = self.plan(bytes.fromhex("d0cf11e0a1b11ae1"), "setup.msi", available=("wine",))

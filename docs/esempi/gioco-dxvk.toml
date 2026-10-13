@@ -1,0 +1,15 @@
+# Profilo di esempio: copialo in ~/.config/uos/profiles/ (o /etc/uos/profiles/)
+# e adattalo. Corrisponde a qualsiasi file "MioGioco*.exe".
+
+[match]
+name = "MioGioco*.exe"
+# sha256 = "…"                 # in alternativa: l'hash esatto del file
+# bundle_id = "com.foo.bar"    # per le applicazioni macOS (.app)
+
+[run]
+prefix = "giochi"              # prefisso Wine condiviso tra i giochi
+args = ["-dx11", "-windowed"]
+env = { DXVK_HUD = "fps", DXVK_ASYNC = "1" }
+dll_overrides = { d3d11 = "n,b", dxgi = "n,b" }   # usa DXVK al posto di wined3d
+# wine = "/opt/proton/files/bin/wine"             # un'altra versione di Wine/Proton
+# emulator = "FEXInterpreter"                     # su ARM: traduttore da preferire

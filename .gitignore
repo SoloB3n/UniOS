@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 build/out/
 build/live/config/packages.chroot/*.deb
+build/live/config/includes.chroot/

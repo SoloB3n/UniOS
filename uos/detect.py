@@ -20,6 +20,8 @@ MSI = "msi"            # Windows Installer (OLE Compound File)
 MACHO = "macho"        # macOS (thin)
 MACHO_FAT = "macho-fat"  # macOS universal binary
 MAC_APP = "mac-app"    # bundle .app di macOS
+MAC_DMG = "mac-dmg"    # immagine disco .dmg (UDIF)
+MAC_PKG = "mac-pkg"    # pacchetto di installazione .pkg (archivio xar)
 JAVA_CLASS = "java-class"
 SCRIPT = "script"      # #! shebang
 WIN_BATCH = "win-batch"  # .bat / .cmd
@@ -73,6 +75,7 @@ def detect(path: str) -> BinaryInfo:
 
     with open(path, "rb") as f:
         head = f.read(_HEADER_SIZE)
+        tail = _read_tail(f, 512)
 
     if head.startswith(b"\x7fELF"):
         return _detect_elf(path, head)
@@ -86,12 +89,25 @@ def detect(path: str) -> BinaryInfo:
             return _detect_macho(path, head)
         if magic_be in (0xCAFEBABE, 0xCAFEBABF):
             return _detect_cafebabe(path, head, magic_be)
+    if head.startswith(b"xar!"):
+        return BinaryInfo(path, MAC_PKG)
+    # Le immagini UDIF terminano con il blocco "koly" di 512 byte
+    if tail.startswith(b"koly"):
+        return BinaryInfo(path, MAC_DMG)
     if head.startswith(b"#!"):
         line = head.split(b"\n", 1)[0][2:].strip().decode("utf-8", "replace")
         return BinaryInfo(path, SCRIPT, details={"interpreter": line})
     if path.lower().endswith((".bat", ".cmd")):
         return BinaryInfo(path, WIN_BATCH)
     return BinaryInfo(path, UNKNOWN)
+
+
+def _read_tail(f, size: int) -> bytes:
+    f.seek(0, os.SEEK_END)
+    if f.tell() < size:
+        return b""
+    f.seek(-size, os.SEEK_END)
+    return f.read(size)
 
 
 def _detect_elf(path: str, head: bytes) -> BinaryInfo:

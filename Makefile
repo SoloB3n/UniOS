@@ -2,7 +2,7 @@ PREFIX  ?= /usr
 DESTDIR ?=
 LIBDIR  := $(DESTDIR)$(PREFIX)/lib/uos
 
-.PHONY: test install iso clean
+.PHONY: test install iso iso-arm64 clean
 
 test:
 	python3 -m unittest discover -s tests -t .
@@ -17,7 +17,10 @@ install:
 	install -m 644 system/applications/uos-run.desktop $(DESTDIR)$(PREFIX)/share/applications/
 
 iso:
-	sudo ./build/build-iso.sh
+	sudo ARCH=amd64 ./build/build-iso.sh
+
+iso-arm64:
+	sudo ARCH=arm64 ./build/build-iso.sh
 
 clean:
 	rm -rf build/out

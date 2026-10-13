@@ -43,7 +43,21 @@ Codice in `uos/`:
 - `runners.py` sceglie lo strato e costruisce la riga di comando, inserendo un
   traduttore di CPU quando l'architettura del programma non è quella dell'host
   (es. programma x86_64 su ARM → box64).
-- `cli.py` espone `uos run`, `uos info`, `uos doctor`.
+- `macos.py` gestisce i contenitori macOS: estrae i `.dmg` (riconosciuti dal
+  blocco finale `koly` delle immagini UDIF) con 7-Zip in
+  `~/.cache/uos/dmg/`, una volta sola per file; se 7-Zip produce l'immagine della
+  partizione (`.hfs`/`.apfs`) la estrae una seconda volta. Cerca poi le `.app`
+  senza scendere nelle `.app` stesse (che contengono helper) e ignorando il link
+  ad `/Applications` presente in quasi tutti i DMG. Estrae anche l'icona PNG più
+  grande dai file `.icns`.
+- `profiles.py` carica i profili TOML e sceglie quello che corrisponde al programma.
+- `install.py` installa i programmi in `~/Applications` e crea le voci di menu
+  `uos-*.desktop`; `uos uninstall` rimuove solo ciò che sta in `~/Applications`
+  e nella cartella delle icone di uos.
+- `cli.py` espone `uos run`, `info`, `install`, `list`, `uninstall`, `profile`, `doctor`.
+
+I pacchetti `.pkg` (archivi `xar!`) vengono passati a `darling shell installer`,
+che esegue anche gli script di installazione inclusi.
 
 ## Integrazione con il sistema
 
@@ -54,7 +68,25 @@ Codice in `uos/`:
 - **Associazioni MIME** (`system/applications/uos-run.desktop`): il doppio clic
   nel file manager apre gli eseguibili Windows e macOS con `uos run`.
 - **Prefissi Wine**: uno condiviso di default, uno per programma con `--isolate`,
-  sotto `~/.local/share/uos/prefixes/`.
+  oppure uno con nome scelto dal profilo, sotto `~/.local/share/uos/prefixes/`.
+- **Menu contestuale**: "Installa con UniversalOS" sui file eseguibili, `.dmg` e `.pkg`.
+
+## Profili
+
+Ordine di ricerca: `~/.config/uos/profiles/*.toml`, poi `/etc/uos/profiles/*.toml`;
+vince il primo che corrisponde. Un profilo senza sezione `[match]` non si applica
+mai da solo, ma si può forzare con `uos run --profile NOME`. Tutti i criteri
+indicati in `[match]` devono essere soddisfatti.
+
+| Chiave `[run]`   | Effetto                                                 |
+|------------------|---------------------------------------------------------|
+| `prefix`         | prefisso Wine con nome (condivisibile tra programmi)    |
+| `isolate`        | prefisso dedicato al programma                          |
+| `wine`           | eseguibile Wine alternativo (es. Proton, Wine-GE)       |
+| `args`           | argomenti aggiunti prima di quelli dell'utente          |
+| `env`            | variabili d'ambiente                                    |
+| `dll_overrides`  | diventa `WINEDLLOVERRIDES`                              |
+| `emulator`       | traduttore CPU da preferire (box64, FEXInterpreter, …)  |
 
 ## La distribuzione
 
@@ -67,6 +99,19 @@ Codice in `uos/`:
 - `config/hooks/live/0200-uos.hook.chroot`: associazioni MIME, Flathub, rimozione
   della voce binfmt di Wine in favore di quella di uos.
 - `config/packages.chroot/`: `.deb` aggiuntivi, in particolare Darling.
+
+## ARM64
+
+`ARCH=arm64 ./build/build-iso.sh` (o `make iso-arm64`) genera una ISO per PC
+ARM64 con UEFI. I programmi Linux ARM64 girano nativi, quelli Linux x86_64 sotto
+box64, e il Wine di Debian per arm64 esegue i programmi Windows ARM64.
+
+I programmi Windows x86/x86_64, cioè quasi tutti, richiedono un **Wine compilato
+per x86_64** eseguito sotto box64: il Wine arm64 di Debian non può essere
+tradotto da box64. `uos` lo cerca in `/opt/uos/wine-x86_64/bin/wine` (o nella
+variabile `UOS_X86_WINE`). Per includerlo nella ISO, estrai una build di Wine
+x86_64 in `build/live/config/includes.chroot/opt/uos/wine-x86_64/` prima della
+build.
 
 ## Darling
 
