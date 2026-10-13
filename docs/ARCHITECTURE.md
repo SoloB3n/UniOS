@@ -105,6 +105,9 @@ itself, but it can be forced with `uos run --profile NAME`. Every criterion in
   32-bit Windows programs.
 - `config/hooks/live/0200-uos.hook.chroot`: MIME associations, Flathub, the
   boot-time self-test, and removal of Wine's binfmt entry in favour of uos's.
+- `config/hooks/live/0400-calamares-efi-fallback.hook.chroot`: the installer also
+  writes the bootloader to `EFI/BOOT/BOOTX64.EFI`, so firmware that forgets its
+  boot entries (VirtualBox's, for one) still finds the installed system.
 - `config/packages.chroot/`: extra `.deb` packages: the `unios` package itself
   and, optionally, Darling.
 

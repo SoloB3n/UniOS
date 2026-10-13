@@ -11,7 +11,14 @@
    To install it to disk, open **Install System** (Calamares) from the menu.
 
 It can also be tried in a virtual machine (VirtualBox, GNOME Boxes, virt-manager):
-at least 4 GB of RAM, 30 GB of disk, EFI enabled.
+at least 4 GB of RAM, 30 GB of disk, EFI enabled. In VirtualBox:
+
+- tick **Skip Unattended Installation** when creating the machine (its unattended
+  mode only knows the stock Debian/Ubuntu installers);
+- if the screen stays black after a `vmwgfx ... unsupported hypervisor` message, set
+  **Settings → Display → Graphics Controller** to **VBoxSVGA** and disable 3D acceleration;
+- the live session user is `user`, password `live`;
+- after installing, remove the ISO from **Settings → Storage** before rebooting.
 
 ### On an existing Debian 13 or Ubuntu 24.04+
 

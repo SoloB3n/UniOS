@@ -1,0 +1,17 @@
+#!/bin/sh
+# Make Calamares also install the bootloader to the removable-media path
+# (EFI/BOOT/BOOTX64.EFI). Firmware that forgets its boot entries, such as
+# VirtualBox's, then still finds the installed system.
+set -e
+etc=/etc/calamares/modules/bootloader.conf
+share=/usr/share/calamares/modules/bootloader.conf
+if [ ! -f "$etc" ]; then
+    [ -f "$share" ] || exit 0
+    mkdir -p "$(dirname "$etc")"
+    cp "$share" "$etc"
+fi
+if grep -q '^installEFIFallback:' "$etc"; then
+    sed -i 's/^installEFIFallback:.*/installEFIFallback: true/' "$etc"
+else
+    printf '\ninstallEFIFallback: true\n' >> "$etc"
+fi
