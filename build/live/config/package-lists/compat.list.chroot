@@ -16,8 +16,7 @@ binfmt-support
 7zip
 # Formati di pacchetto Linux universali
 flatpak
-# Runtime Java e .NET/Mono
+# Runtime Java (Wine scarica da sé wine-mono per i programmi .NET)
 default-jre
-mono-runtime
 # Requisiti del dispatcher uos
 python3

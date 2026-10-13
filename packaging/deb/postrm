@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+if [ "$1" = remove ] || [ "$1" = purge ]; then
+    # Il riavvio deregistra le voci uos-* ormai rimosse da binfmt.d
+    if [ -d /run/systemd/system ]; then
+        systemctl restart systemd-binfmt.service || true
+    fi
+    if command -v update-desktop-database >/dev/null; then
+        update-desktop-database -q /usr/share/applications || true
+    fi
+fi

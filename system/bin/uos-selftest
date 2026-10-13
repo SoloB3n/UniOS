@@ -1,0 +1,34 @@
+#!/bin/sh
+# Autoverifica del sistema installato, eseguita all'avvio solo se il kernel
+# riceve il parametro "uos.selftest" (la CI la usa per collaudare la ISO in
+# QEMU). Stampa righe "UOS-SELFTEST: ..." e poi spegne la macchina.
+set -u
+fail=0
+say() { echo "UOS-SELFTEST: $*"; }
+
+uos doctor
+say "versione $(uos --version)"
+
+# Linux: esecuzione nativa tramite il dispatcher
+out=$(uos run /bin/echo nativo-ok 2>&1)
+if [ "$out" = nativo-ok ]; then say "linux OK"; else say "linux FALLITO: '$out'"; fail=1; fi
+
+# Windows: hostname.exe è un vero eseguibile PE distribuito con Wine
+exe=$(find /usr/lib -path '*x86_64-windows/hostname.exe' 2>/dev/null | head -n 1)
+if [ -z "$exe" ]; then
+    say "windows FALLITO: hostname.exe di Wine non trovato"; fail=1
+elif ! uos info "$exe" | grep -q '"runner": "wine"'; then
+    say "windows FALLITO: $exe non viene affidato a Wine"; fail=1
+else
+    out=$(HOME=/root WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml=" \
+          timeout 900 uos run "$exe" 2>/dev/null | tr -d '\r')
+    expected=$(hostname)
+    if [ "$(echo "$out" | tr A-Z a-z)" = "$(echo "$expected" | tr A-Z a-z)" ]; then
+        say "windows OK (hostname.exe → $out)"
+    else
+        say "windows FALLITO: atteso '$expected', ottenuto '$out'"; fail=1
+    fi
+fi
+
+if [ "$fail" = 0 ]; then say "RISULTATO OK"; else say "RISULTATO FALLITO"; fi
+systemctl poweroff

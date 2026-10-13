@@ -7,7 +7,7 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ARCH=${ARCH:-amd64}            # amd64 oppure arm64
-WORK="$ROOT/build/out/$ARCH"
+WORK=${WORK:-$ROOT/build/out/$ARCH}
 
 case "$ARCH" in
     amd64) BOOTLOADERS="grub-efi,syslinux" ;;
@@ -28,8 +28,8 @@ rm -rf "$WORK"
 mkdir -p "$WORK"
 cp -a "$ROOT/build/live/config" "$WORK/"
 
-# Il dispatcher uos viene copiato nel filesystem della ISO
-make -C "$ROOT" install DESTDIR="$WORK/config/includes.chroot"
+# Il dispatcher uos entra nella ISO come pacchetto Debian
+OUT="$WORK/config/packages.chroot" "$ROOT/build/build-deb.sh"
 
 if ! ls "$WORK"/config/packages.chroot/darling*.deb >/dev/null 2>&1; then
     echo "ATTENZIONE: nessun pacchetto darling*.deb in build/live/config/packages.chroot/:" >&2
@@ -47,10 +47,15 @@ lb config \
     --architectures "$ARCH" \
     --bootloaders "$BOOTLOADERS" \
     --binary-images iso-hybrid \
-    --debian-installer live \
+    --debian-installer none \
     --iso-application "UniversalOS" \
     --iso-volume "UniversalOS" \
-    --bootappend-live "boot=live components quiet splash hostname=universalos"
+    --bootappend-live "boot=live components quiet splash hostname=universalos locales=it_IT.UTF-8 keyboard-layouts=it timezone=Europe/Rome"
+# squashfs compresso con xz: la ISO deve restare sotto i 2 GB delle release GitHub
+case "$ARCH" in
+    amd64) export MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 1M" ;;
+    *)     export MKSQUASHFS_OPTIONS="-comp xz -b 1M" ;;
+esac
 lb build
 
 ls -lh "$WORK"/*.iso

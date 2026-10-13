@@ -1,5 +1,0 @@
-Metti qui i pacchetti .deb extra da includere nella ISO.
-
-In particolare Darling (lo strato per i programmi macOS) non è nei repository
-Debian: compila il pacchetto dai sorgenti (https://github.com/darlinghq/darling,
-"Building as a Debian package") e copia qui darling*.deb prima di `make iso`.

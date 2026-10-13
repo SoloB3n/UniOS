@@ -1,0 +1,14 @@
+[Unit]
+Description=Autoverifica di UniversalOS (solo con il parametro uos.selftest)
+ConditionKernelCommandLine=uos.selftest
+After=multi-user.target network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/uos/uos-selftest
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/ttyS0
+
+[Install]
+WantedBy=multi-user.target

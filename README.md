@@ -12,6 +12,20 @@ $ uos run ./programma-linux     # → nativo
 $ ./gioco.exe                   # funziona anche così, grazie a binfmt_misc
 ```
 
+## Installazione
+
+Scarica la ISO dalla pagina
+[Releases](https://github.com/SoloB3n/UniversalOS/releases), scrivila su una
+chiavetta USB (balenaEtcher, Ventoy o `dd`) e avvia il PC da lì: puoi provare il
+sistema in modalità live e poi installarlo su disco con **Installa sistema**.
+Ogni release contiene le istruzioni passo passo.
+
+Su Debian o Ubuntu già installati basta il pacchetto:
+
+```sh
+sudo apt install ./universalos_<versione>_all.deb
+```
+
 ## Come funziona
 
 UniversalOS non riscrive tre sistemi operativi: si basa su un kernel Linux, che
@@ -80,12 +94,12 @@ dll_overrides = { d3d11 = "n,b", dxgi = "n,b" }
 `uos profile --new gioco.exe` crea un modello da completare; un esempio
 commentato è in [docs/esempi/gioco-dxvk.toml](docs/esempi/gioco-dxvk.toml).
 
-## Provarlo su una distribuzione Linux esistente
+## Dai sorgenti
 
 ```sh
-sudo apt install wine dosbox qemu-user      # strati facoltativi
-sudo make install
-sudo systemctl restart systemd-binfmt       # per avviare ./programma.exe direttamente
+make deb                                    # → build/out/universalos_<versione>_all.deb
+sudo apt install ./build/out/universalos_*_all.deb
+sudo apt install wine 7zip dosbox qemu-user # strati di compatibilità facoltativi
 uos doctor
 ```
 
@@ -98,6 +112,12 @@ sudo apt install live-build
 make iso            # PC x86_64      → build/out/amd64/*.iso
 make iso-arm64      # PC ARM64 UEFI  → build/out/arm64/*.iso (sperimentale)
 ```
+
+La ISO viene costruita anche da GitHub Actions (`.github/workflows/ci.yml`):
+avviando il workflow a mano o creando un tag `v*`, la ISO viene generata in un
+container Debian, **collaudata in QEMU** e pubblicata nelle Releases. Il collaudo
+avvia il sistema con il parametro `uos.selftest`, che esegue un vero programma
+Windows (`hostname.exe` di Wine) attraverso `uos` e spegne la macchina.
 
 La ISO include KDE Plasma, l'installer Calamares, Wine (32 e 64 bit), DOSBox,
 qemu-user, 7-Zip, Flatpak, Java, Mono e il dispatcher `uos`. La versione ARM64
@@ -135,3 +155,5 @@ make test
 - [ ] Profili condivisi dalla comunità per i programmi più diffusi
 - [ ] Interfaccia grafica: gestione programmi, prefissi e profili
 - [ ] Wine x86_64 per ARM64 incluso automaticamente nella ISO
+- [x] Pacchetto .deb, ISO collaudata e pubblicata automaticamente
+- [ ] Darling compilato e incluso automaticamente nella ISO

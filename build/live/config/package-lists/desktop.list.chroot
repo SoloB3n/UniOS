@@ -1,7 +1,20 @@
-# Ambiente desktop e base di sistema
-task-kde-desktop
+# Ambiente desktop (KDE Plasma essenziale) e base di sistema
+kde-plasma-desktop
 sddm
-network-manager
+sddm-theme-breeze
+plasma-nm
+konsole
+dolphin
+kate
+ark
+okular
+gwenview
 firefox-esr
+firefox-esr-l10n-it
+network-manager
+pipewire-audio
+locales
+task-italian
+# Installer grafico su disco
 calamares
 calamares-settings-debian

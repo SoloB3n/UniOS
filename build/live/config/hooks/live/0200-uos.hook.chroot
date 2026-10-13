@@ -16,5 +16,7 @@ application/x-mach-binary=uos-run.desktop
 application/x-apple-diskimage=uos-run.desktop
 application/x-xar=uos-run.desktop
 MIME
+# Autoverifica all'avvio, attiva solo con il parametro del kernel uos.selftest
+systemctl enable uos-selftest.service
 # Abilita Flathub
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+# Python crea la cache dei bytecode all'esecuzione: va tolta prima della rimozione
+rm -rf /usr/lib/uos/uos/__pycache__

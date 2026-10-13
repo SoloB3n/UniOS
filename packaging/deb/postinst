@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+if [ "$1" = configure ]; then
+    # Registra subito i formati .exe/Mach-O in binfmt_misc (non dentro un chroot)
+    if [ -d /run/systemd/system ]; then
+        systemctl restart systemd-binfmt.service || true
+    fi
+    if command -v update-desktop-database >/dev/null; then
+        update-desktop-database -q /usr/share/applications || true
+    fi
+fi
