@@ -131,7 +131,7 @@ jobs:
           cp debs/unios_*.deb "$DIST/"
           (cd "$DIST" && sha256sum "$NAME" unios_*.deb > SHA256SUMS)
           # GitHub releases accept files up to 2 GiB: beyond that the ISO is split
-          NOTES=/mnt/uos/notes.md
+          NOTES="$RUNNER_TEMP/notes.md"
           sed -e '/^<!-- parts -->/,/^<!-- \/parts -->/d' -e "s/@VERSION@/$VERSION/g" -e "s/@NAME@/$NAME/g" \
             build/ci/release-notes.md > "$NOTES"
           if [ "$(stat -c %s "$DIST/$NAME")" -gt 2000000000 ]; then
@@ -150,5 +150,5 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: ${{ startsWith(github.ref, 'refs/tags/v') && format('UniOS {0}', github.ref_name) || format('UniOS {0} (preview {1})', env.VERSION, github.run_number) }}
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-          body_path: /mnt/uos/notes.md
+          body_path: ${{ runner.temp }}/notes.md
           files: /mnt/uos/dist/*
