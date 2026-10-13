@@ -1,0 +1,18 @@
+#!/bin/sh
+# Attiva le integrazioni di UniversalOS nel sistema generato.
+set -e
+# Le voci binfmt di uos hanno la precedenza su quelle di Wine
+rm -f /usr/lib/binfmt.d/wine.conf
+update-desktop-database -q /usr/share/applications || true
+# Associa gli eseguibili Windows/macOS al dispatcher per tutti gli utenti
+mkdir -p /etc/xdg
+cat >> /etc/xdg/mimeapps.list <<'MIME'
+[Default Applications]
+application/x-ms-dos-executable=uos-run.desktop
+application/x-msdownload=uos-run.desktop
+application/vnd.microsoft.portable-executable=uos-run.desktop
+application/x-msi=uos-run.desktop
+application/x-mach-binary=uos-run.desktop
+MIME
+# Abilita Flathub
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true

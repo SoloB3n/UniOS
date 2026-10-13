@@ -1,0 +1,19 @@
+# Strati di compatibilità
+# Windows: Wine (wine32:i386 viene aggiunto dall'hook 0100) + gestione prefissi
+wine
+wine64
+winetricks
+fonts-wine
+# MS-DOS
+dosbox
+# Emulazione CPU per binari Linux di altre architetture (ARM, RISC-V...)
+qemu-user
+qemu-user-binfmt
+binfmt-support
+# Formati di pacchetto Linux universali
+flatpak
+# Runtime Java e .NET/Mono
+default-jre
+mono-runtime
+# Requisiti del dispatcher uos
+python3

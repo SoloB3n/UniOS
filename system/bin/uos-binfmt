@@ -1,0 +1,4 @@
+#!/bin/sh
+# Interprete invocato dal kernel (binfmt_misc) quando si esegue direttamente
+# un .exe o un binario Mach-O: il kernel passa il percorso del file e gli argomenti.
+exec /usr/bin/uos run -- "$@"

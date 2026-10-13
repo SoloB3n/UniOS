@@ -1,0 +1,6 @@
+#!/bin/sh
+# Abilita l'architettura i386 per eseguire programmi Windows a 32 bit con Wine.
+set -e
+dpkg --add-architecture i386
+apt-get update
+apt-get install -y --no-install-recommends wine32:i386

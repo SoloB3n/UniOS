@@ -1,0 +1,7 @@
+# Ambiente desktop e base di sistema
+task-kde-desktop
+sddm
+network-manager
+firefox-esr
+calamares
+calamares-settings-debian
