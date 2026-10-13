@@ -36,9 +36,9 @@ jobs:
 
       - name: Installazione e rimozione di prova del .deb
         run: |
-          sudo apt-get install -y --no-install-recommends ./dist/universalos_*_all.deb
+          sudo apt-get install -y --no-install-recommends ./dist/unios_*_all.deb
           cd / && uos --version && uos run /bin/echo ok && (uos doctor || true)
-          sudo apt-get purge -y universalos
+          sudo apt-get purge -y unios
           test ! -e /usr/lib/uos
 
       - uses: actions/upload-artifact@v4
@@ -93,10 +93,10 @@ jobs:
         run: |
           DIST=/mnt/uos/dist
           sudo mkdir -p "$DIST" && sudo chown "$(id -u)" "$DIST"
-          NAME="UniversalOS-$VERSION-amd64.iso"
+          NAME="UniOS-$VERSION-amd64.iso"
           cp /mnt/uos/amd64/*.iso "$DIST/$NAME"
-          cp /mnt/uos/amd64/config/packages.chroot/universalos_*_all.deb "$DIST/"
-          (cd "$DIST" && sha256sum "$NAME" universalos_*_all.deb > SHA256SUMS)
+          cp /mnt/uos/amd64/config/packages.chroot/unios_*_all.deb "$DIST/"
+          (cd "$DIST" && sha256sum "$NAME" unios_*_all.deb > SHA256SUMS)
           # Le release GitHub accettano file fino a 2 GiB: oltre, la ISO va in parti
           NOTES=/mnt/uos/notes.md
           sed -e '/^<!-- parti -->/,/^<!-- \/parti -->/d' -e "s/@VERSION@/$VERSION/g" -e "s/@NAME@/$NAME/g" \
@@ -115,7 +115,7 @@ jobs:
         with:
           tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}-anteprima.{1}', env.VERSION, github.run_number) }}
           target_commitish: ${{ github.sha }}
-          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('UniversalOS {0}', github.ref_name) || format('UniversalOS {0} (anteprima {1})', env.VERSION, github.run_number) }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('UniOS {0}', github.ref_name) || format('UniOS {0} (anteprima {1})', env.VERSION, github.run_number) }}
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
           body_path: /mnt/uos/notes.md
           files: /mnt/uos/dist/*

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Attiva le integrazioni di UniversalOS nel sistema generato.
+# Attiva le integrazioni di UniOS nel sistema generato.
 set -e
 # Le voci binfmt di uos hanno la precedenza su quelle di Wine
 rm -f /usr/lib/binfmt.d/wine.conf

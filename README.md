@@ -1,8 +1,8 @@
-# UniversalOS
+# UniOS
 
 Un sistema operativo che esegue programmi **Linux, Windows e macOS** dallo stesso
 desktop: fai doppio clic su un `.exe`, su un binario Mac o su un programma Linux e
-UniversalOS sceglie da solo come avviarlo.
+UniOS sceglie da solo come avviarlo.
 
 ```
 $ uos run Setup.exe             # → Wine
@@ -23,12 +23,12 @@ Ogni release contiene le istruzioni passo passo.
 Su Debian o Ubuntu già installati basta il pacchetto:
 
 ```sh
-sudo apt install ./universalos_<versione>_all.deb
+sudo apt install ./unios_<versione>_all.deb
 ```
 
 ## Come funziona
 
-UniversalOS non riscrive tre sistemi operativi: si basa su un kernel Linux, che
+UniOS non riscrive tre sistemi operativi: si basa su un kernel Linux, che
 esegue i programmi Linux in modo nativo. Per gli altri sistemi usa gli strati di
 compatibilità più maturi oggi disponibili, e il dispatcher `uos` li collega tra loro:
 
@@ -72,7 +72,7 @@ configurazioni incompatibili.
 | `.exe` / `.msi`         | avvia l'installer con Wine (che crea da sé le voci di menu)    |
 | `.pkg`                  | lo installa con l'installer di Darling                         |
 
-Dal file manager basta il clic destro → **Installa con UniversalOS**.
+Dal file manager basta il clic destro → **Installa con UniOS**.
 
 ### Profili per programma
 
@@ -97,8 +97,8 @@ commentato è in [docs/esempi/gioco-dxvk.toml](docs/esempi/gioco-dxvk.toml).
 ## Dai sorgenti
 
 ```sh
-make deb                                    # → build/out/universalos_<versione>_all.deb
-sudo apt install ./build/out/universalos_*_all.deb
+make deb                                    # → build/out/unios_<versione>_all.deb
+sudo apt install ./build/out/unios_*_all.deb
 sudo apt install wine 7zip dosbox qemu-user # strati di compatibilità facoltativi
 uos doctor
 ```

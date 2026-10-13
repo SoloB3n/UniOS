@@ -1,4 +1,4 @@
-## Installare UniversalOS @VERSION@
+## Installare UniOS @VERSION@
 
 1. Scarica `@NAME@` (e `SHA256SUMS` per verificarla: `sha256sum -c SHA256SUMS`).
 2. Scrivila su una chiavetta USB da almeno 8 GB con
@@ -15,7 +15,7 @@ almeno 4 GB di RAM e 30 GB di disco.
 ### Su Debian o Ubuntu già installati
 
 ```sh
-sudo apt install ./universalos_@VERSION@_all.deb
+sudo apt install ./unios_@VERSION@_all.deb
 sudo apt install wine 7zip dosbox     # strati di compatibilità
 uos doctor
 ```

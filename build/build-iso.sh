@@ -1,5 +1,5 @@
 #!/bin/sh
-# Genera la ISO live/installabile di UniversalOS (base Debian 13 "trixie").
+# Genera la ISO live/installabile di UniOS (base Debian 13 "trixie").
 # Uso: ./build/build-iso.sh            (PC x86_64)
 #      ARCH=arm64 ./build/build-iso.sh (PC ARM64 con UEFI)
 # Requisiti sull'host di build: Debian/Ubuntu con live-build, eseguito come root.
@@ -48,9 +48,9 @@ lb config \
     --bootloaders "$BOOTLOADERS" \
     --binary-images iso-hybrid \
     --debian-installer none \
-    --iso-application "UniversalOS" \
-    --iso-volume "UniversalOS" \
-    --bootappend-live "boot=live components quiet splash hostname=universalos locales=it_IT.UTF-8 keyboard-layouts=it timezone=Europe/Rome"
+    --iso-application "UniOS" \
+    --iso-volume "UniOS" \
+    --bootappend-live "boot=live components quiet splash hostname=unios locales=it_IT.UTF-8 keyboard-layouts=it timezone=Europe/Rome"
 # squashfs compresso con xz: la ISO deve restare sotto i 2 GB delle release GitHub
 case "$ARCH" in
     amd64) export MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 1M" ;;

@@ -1,4 +1,4 @@
-# Architettura di UniversalOS
+# Architettura di UniOS
 
 ## Perché una base Linux
 
@@ -69,7 +69,7 @@ che esegue anche gli script di installazione inclusi.
   nel file manager apre gli eseguibili Windows e macOS con `uos run`.
 - **Prefissi Wine**: uno condiviso di default, uno per programma con `--isolate`,
   oppure uno con nome scelto dal profilo, sotto `~/.local/share/uos/prefixes/`.
-- **Menu contestuale**: "Installa con UniversalOS" sui file eseguibili, `.dmg` e `.pkg`.
+- **Menu contestuale**: "Installa con UniOS" sui file eseguibili, `.dmg` e `.pkg`.
 
 ## Profili
 
@@ -121,7 +121,7 @@ Darling non è nei repository Debian. Per includerlo nella ISO:
 git clone --recursive https://github.com/darlinghq/darling.git
 cd darling
 # segui "Building as a Debian package" nella documentazione di Darling
-cp ../darling*.deb /percorso/UniversalOS/build/live/config/packages.chroot/
+cp ../darling*.deb /percorso/UniOS/build/live/config/packages.chroot/
 ```
 
 Darling monta il filesystem dell'host sotto `/Volumes/SystemRoot`: `uos` traduce

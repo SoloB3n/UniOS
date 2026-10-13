@@ -154,7 +154,7 @@ def cmd_profile(ns: argparse.Namespace) -> int:
 
 def cmd_doctor(_ns: argparse.Namespace) -> int:
     host = runners.host_arch()
-    print(f"UniversalOS {__version__} — architettura host: {host}\n")
+    print(f"UniOS {__version__} — architettura host: {host}\n")
     layers = [
         ("Windows (Wine)", ["wine", "wine64"]),
         ("macOS (Darling)", ["darling"]),

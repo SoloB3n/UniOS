@@ -1,5 +1,5 @@
 #!/bin/sh
-# Crea il pacchetto Debian di UniversalOS in build/out/universalos_<versione>_all.deb
+# Crea il pacchetto Debian di UniOS in build/out/unios_<versione>_all.deb
 set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -16,6 +16,6 @@ install -m 755 "$ROOT/packaging/deb/postinst" "$ROOT/packaging/deb/prerm" "$ROOT
 find "$STAGE" -name __pycache__ -prune -exec rm -rf {} +
 
 mkdir -p "$OUT"
-DEB="$OUT/universalos_${VERSION}_all.deb"
+DEB="$OUT/unios_${VERSION}_all.deb"
 dpkg-deb --root-owner-group --build "$STAGE" "$DEB" >/dev/null
 echo "$DEB"
