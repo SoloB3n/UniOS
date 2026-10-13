@@ -7,7 +7,7 @@ Priority: optional
 Depends: python3 (>= 3.11)
 Recommends: wine, 7zip, dosbox, qemu-user, desktop-file-utils
 Suggests: darling, box64, winetricks, default-jre
-Homepage: https://github.com/SoloB3n/UniversalOS
+Homepage: https://github.com/SoloB3n/UniOS
 Description: avvia programmi Linux, Windows e macOS dallo stesso sistema
  UniversalOS riconosce il formato di ogni eseguibile (ELF, PE, Mach-O, .app,
  .dmg, .pkg, .msi) e lo avvia con lo strato di compatibilità adatto: nativo,

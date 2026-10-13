@@ -15,7 +15,7 @@ $ ./gioco.exe                   # funziona anche così, grazie a binfmt_misc
 ## Installazione
 
 Scarica la ISO dalla pagina
-[Releases](https://github.com/SoloB3n/UniversalOS/releases), scrivila su una
+[Releases](https://github.com/SoloB3n/UniOS/releases), scrivila su una
 chiavetta USB (balenaEtcher, Ventoy o `dd`) e avvia il PC da lì: puoi provare il
 sistema in modalità live e poi installarlo su disco con **Installa sistema**.
 Ogni release contiene le istruzioni passo passo.
