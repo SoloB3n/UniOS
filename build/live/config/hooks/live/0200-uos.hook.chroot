@@ -1,10 +1,10 @@
 #!/bin/sh
-# Attiva le integrazioni di UniOS nel sistema generato.
+# Turn on the UniOS integrations in the generated system.
 set -e
-# Le voci binfmt di uos hanno la precedenza su quelle di Wine
+# The uos binfmt entries take precedence over Wine's
 rm -f /usr/lib/binfmt.d/wine.conf
 update-desktop-database -q /usr/share/applications || true
-# Associa gli eseguibili Windows/macOS al dispatcher per tutti gli utenti
+# Open Windows/macOS executables with the dispatcher, for every user
 mkdir -p /etc/xdg
 cat >> /etc/xdg/mimeapps.list <<'MIME'
 [Default Applications]
@@ -16,7 +16,7 @@ application/x-mach-binary=uos-run.desktop
 application/x-apple-diskimage=uos-run.desktop
 application/x-xar=uos-run.desktop
 MIME
-# Autoverifica all'avvio, attiva solo con il parametro del kernel uos.selftest
+# Boot-time self-test, active only with the uos.selftest kernel parameter
 systemctl enable uos-selftest.service
-# Abilita Flathub
+# Enable Flathub
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true

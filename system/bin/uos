@@ -1,3 +1,0 @@
-#!/bin/sh
-# Punto d'ingresso di sistema per il comando uos.
-PYTHONPATH=/usr/lib/uos${PYTHONPATH:+:$PYTHONPATH} exec python3 -P -m uos "$@"

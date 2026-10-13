@@ -1,34 +1,43 @@
 #!/bin/sh
-# Autoverifica del sistema installato, eseguita all'avvio solo se il kernel
-# riceve il parametro "uos.selftest" (la CI la usa per collaudare la ISO in
-# QEMU). Stampa righe "UOS-SELFTEST: ..." e poi spegne la macchina.
+# Self-test of the installed system, run at boot only when the kernel gets the
+# "uos.selftest" parameter (CI uses it to test the ISO in QEMU). It prints
+# "UOS-SELFTEST: ..." lines and then powers the machine off.
+#
+# Results go to the kernel log (/dev/kmsg), which the kernel echoes on the
+# serial console: unlike a tty, it keeps working when a getty takes over the
+# serial port.
 set -u
 fail=0
-say() { echo "UOS-SELFTEST: $*"; }
+say() {
+    echo "UOS-SELFTEST: $*"
+    echo "UOS-SELFTEST: $*" > /dev/kmsg 2>/dev/null || true
+}
 
 uos doctor
-say "versione $(uos --version)"
+say "version $(uos --version)"
 
-# Linux: esecuzione nativa tramite il dispatcher
-out=$(uos run /bin/echo nativo-ok 2>&1)
-if [ "$out" = nativo-ok ]; then say "linux OK"; else say "linux FALLITO: '$out'"; fail=1; fi
+# Linux: native execution through the dispatcher
+out=$(uos run /bin/echo native-ok 2>&1)
+if [ "$out" = native-ok ]; then say "linux OK"; else say "linux FAILED: '$out'"; fail=1; fi
 
-# Windows: hostname.exe è un vero eseguibile PE distribuito con Wine
+# Windows: hostname.exe is a real PE executable shipped with Wine
 exe=$(find /usr/lib -path '*x86_64-windows/hostname.exe' 2>/dev/null | head -n 1)
 if [ -z "$exe" ]; then
-    say "windows FALLITO: hostname.exe di Wine non trovato"; fail=1
+    say "windows FAILED: Wine's hostname.exe not found"; fail=1
 elif ! uos info "$exe" | grep -q '"runner": "wine"'; then
-    say "windows FALLITO: $exe non viene affidato a Wine"; fail=1
+    say "windows FAILED: $exe is not handed to Wine"; fail=1
 else
-    out=$(HOME=/root WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml=" \
-          timeout 900 uos run "$exe" 2>/dev/null | tr -d '\r')
+    export HOME=/root WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml="
+    out=$(timeout 900 uos run "$exe" 2>/dev/null | tr -d '\r')
     expected=$(hostname)
     if [ "$(echo "$out" | tr A-Z a-z)" = "$(echo "$expected" | tr A-Z a-z)" ]; then
-        say "windows OK (hostname.exe → $out)"
+        say "windows OK (hostname.exe -> $out)"
     else
-        say "windows FALLITO: atteso '$expected', ottenuto '$out'"; fail=1
+        say "windows FAILED: expected '$expected', got '$out'"; fail=1
     fi
+    # Stop the Wine processes left behind, so shutdown does not wait for them
+    WINEPREFIX="$HOME/.local/share/uos/prefixes/default" wineserver -k 2>/dev/null || true
 fi
 
-if [ "$fail" = 0 ]; then say "RISULTATO OK"; else say "RISULTATO FALLITO"; fi
-systemctl poweroff
+if [ "$fail" = 0 ]; then say "RESULT OK"; else say "RESULT FAILED"; fi
+systemctl --no-block poweroff

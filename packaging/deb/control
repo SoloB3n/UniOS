@@ -1,16 +1,16 @@
 Package: unios
 Version: @VERSION@
-Architecture: all
+Architecture: @ARCH@
 Maintainer: UniOS <noreply@unios.invalid>
 Section: otherosfs
 Priority: optional
-Depends: python3 (>= 3.11)
+Depends: @DEPENDS@
 Recommends: wine, 7zip, dosbox, qemu-user, desktop-file-utils
 Suggests: darling, box64, winetricks, default-jre
 Homepage: https://github.com/SoloB3n/UniOS
-Description: avvia programmi Linux, Windows e macOS dallo stesso sistema
- UniOS riconosce il formato di ogni eseguibile (ELF, PE, Mach-O, .app,
- .dmg, .pkg, .msi) e lo avvia con lo strato di compatibilità adatto: nativo,
- Wine, Darling o DOSBox, con traduzione della CPU quando serve. Registra i
- formati in binfmt_misc e nel menu del desktop, gestisce profili per
- programma e installa le applicazioni nel menu.
+Description: run Linux, Windows and macOS programs from the same system
+ UniOS recognises the format of every executable (ELF, PE, Mach-O, .app,
+ .dmg, .pkg, .msi) and starts it with the right compatibility layer: native,
+ Wine, Darling or DOSBox, with CPU translation when needed. It registers the
+ formats with binfmt_misc and the desktop menu, applies per-program profiles
+ and installs applications into the menu.

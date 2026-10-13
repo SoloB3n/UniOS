@@ -1,0 +1,33 @@
+[package]
+name = "unios"
+version = "0.4.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Run Linux, Windows and macOS programs from the same system"
+repository = "https://github.com/SoloB3n/UniOS"
+readme = "README.md"
+
+[lib]
+name = "uos"
+path = "src/lib.rs"
+
+[[bin]]
+name = "uos"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+glob = "0.3"
+plist = "1.7"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.10"
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

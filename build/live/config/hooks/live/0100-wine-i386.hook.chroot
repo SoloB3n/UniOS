@@ -1,7 +1,7 @@
 #!/bin/sh
-# Abilita l'architettura i386 per eseguire programmi Windows a 32 bit con Wine.
+# Enable the i386 architecture to run 32-bit Windows programs with Wine.
 set -e
-# Solo su PC x86_64: su ARM i programmi a 32 bit passano da box64/FEX
+# x86_64 PCs only: on ARM, 32-bit programs go through box64/FEX
 [ "$(dpkg --print-architecture)" = amd64 ] || exit 0
 dpkg --add-architecture i386
 apt-get update

@@ -1,41 +1,42 @@
-## Installare UniOS @VERSION@
+## Installing UniOS @VERSION@
 
-1. Scarica `@NAME@` (e `SHA256SUMS` per verificarla: `sha256sum -c SHA256SUMS`).
-2. Scrivila su una chiavetta USB da almeno 8 GB con
-   [balenaEtcher](https://etcher.balena.io/), [Ventoy](https://www.ventoy.net/) o, da Linux,
+1. Download `@NAME@` (and `SHA256SUMS` to verify it: `sha256sum -c SHA256SUMS --ignore-missing`).
+2. Write it to a USB stick of at least 8 GB with
+   [balenaEtcher](https://etcher.balena.io/), [Ventoy](https://www.ventoy.net/) or, from Linux,
    `sudo dd if=@NAME@ of=/dev/sdX bs=4M status=progress oflag=sync`
-   (`/dev/sdX` è la chiavetta: tutto il suo contenuto verrà cancellato).
-3. Avvia il PC dalla chiavetta (menu di avvio del firmware, di solito F12, F11 o Esc).
-4. Si apre la sessione live: puoi provare il sistema senza installarlo.
-   Per installarlo su disco, apri **Installa sistema** (Calamares) dal menu.
+   (`/dev/sdX` is the stick: everything on it will be erased).
+3. Boot the PC from the stick (firmware boot menu, usually F12, F11 or Esc).
+   If it does not start, temporarily disable Secure Boot in the firmware settings.
+4. The live session opens: you can try the system without installing it.
+   To install it to disk, open **Install System** (Calamares) from the menu.
 
-Si può provare anche in una macchina virtuale (VirtualBox, GNOME Boxes, virt-manager):
-almeno 4 GB di RAM e 30 GB di disco.
+It can also be tried in a virtual machine (VirtualBox, GNOME Boxes, virt-manager):
+at least 4 GB of RAM, 30 GB of disk, EFI enabled.
 
-### Su Debian o Ubuntu già installati
+### On an existing Debian 13 or Ubuntu 24.04+
 
 ```sh
-sudo apt install ./unios_@VERSION@_all.deb
-sudo apt install wine 7zip dosbox     # strati di compatibilità
+sudo apt install ./unios_@VERSION@_amd64.deb     # or _arm64.deb
+sudo apt install wine 7zip dosbox                # compatibility layers
 uos doctor
 ```
 
-### Cosa contiene
+### What's inside
 
-KDE Plasma, Wine (programmi Windows a 32 e 64 bit), DOSBox, qemu-user, 7-Zip, Flatpak
-con Flathub, Java e il dispatcher `uos`. Ogni ISO è collaudata in automatico: viene avviata
-in una macchina virtuale, che esegue un vero programma Windows tramite `uos` e Wine.
+KDE Plasma, Wine (32- and 64-bit Windows programs), DOSBox, qemu-user, 7-Zip, Flatpak
+with Flathub, Java and the `uos` dispatcher. Every ISO is tested automatically: it is booted
+in a virtual machine, which runs a real Windows program through `uos` and Wine.
 
-**Non ancora incluso:** Darling (programmi macOS), va compilato a parte.
+**Not included yet:** Darling (macOS programs), which has to be built separately.
 
-<!-- parti -->
-### ISO divisa in parti
+<!-- parts -->
+### ISO split into parts
 
-La ISO supera i 2 GB consentiti da GitHub per un singolo file ed è divisa in parti.
-Scaricale tutte e riuniscile prima di scriverle sulla chiavetta:
+The ISO is larger than the 2 GB GitHub allows for a single file, so it is split into parts.
+Download all of them and join them before writing the stick:
 
 - Linux / macOS: `cat @NAME@.part* > @NAME@`
-- Windows (Prompt dei comandi): `copy /b @NAME@.part0 + @NAME@.part1 @NAME@`
+- Windows (Command Prompt): `copy /b @NAME@.part0 + @NAME@.part1 @NAME@`
 
-Poi verifica con `sha256sum -c SHA256SUMS`.
-<!-- /parti -->
+Then verify it with `sha256sum -c SHA256SUMS --ignore-missing`.
+<!-- /parts -->

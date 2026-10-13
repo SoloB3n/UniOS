@@ -1,4 +1,4 @@
-# Ambiente desktop (KDE Plasma essenziale) e base di sistema
+# Desktop environment (essential KDE Plasma) and base system
 kde-plasma-desktop
 sddm
 sddm-theme-breeze
@@ -15,6 +15,6 @@ network-manager
 pipewire-audio
 locales
 task-italian
-# Installer grafico su disco
+# Graphical installer to disk
 calamares
 calamares-settings-debian

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 if [ "$1" = configure ]; then
-    # Registra subito i formati .exe/Mach-O in binfmt_misc (non dentro un chroot)
+    # Register the .exe/Mach-O formats with binfmt_misc right away (not inside a chroot)
     if [ -d /run/systemd/system ]; then
         systemctl restart systemd-binfmt.service || true
     fi

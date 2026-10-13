@@ -7,47 +7,74 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      pubblica:
-        description: "Pubblica la ISO come release di anteprima"
+      publish:
+        description: "Publish the ISO as a preview release"
         type: boolean
         default: true
 
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
 
-      - name: Test
-        run: python3 -W error::ResourceWarning -m unittest discover -s tests -t . -v
+      - name: Format
+        run: cargo fmt --check
 
-      - name: Sintassi degli script shell
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Tests
+        run: cargo test --locked
+
+      - name: Shell script syntax
         run: |
-          for f in build/*.sh build/ci/*.sh system/bin/uos system/bin/uos-binfmt \
-                   system/bin/uos-selftest packaging/deb/p* build/live/config/hooks/live/*; do
+          for f in build/*.sh build/ci/*.sh system/bin/* packaging/deb/post* build/live/config/hooks/live/*; do
             sh -n "$f"
           done
 
-      - name: Pacchetto .deb
+  deb:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build the .deb
         run: OUT=dist ./build/build-deb.sh
 
-      - name: Installazione e rimozione di prova del .deb
+      - name: Install and remove the .deb
         run: |
-          sudo apt-get install -y --no-install-recommends ./dist/unios_*_all.deb
+          sudo apt-get install -y --no-install-recommends ./dist/unios_*_${{ matrix.arch }}.deb
           cd / && uos --version && uos run /bin/echo ok && (uos doctor || true)
           sudo apt-get purge -y unios
-          test ! -e /usr/lib/uos
+          test ! -e /usr/bin/uos && test ! -e /usr/lib/uos
 
       - uses: actions/upload-artifact@v4
         with:
-          name: deb
+          name: deb-${{ matrix.arch }}
           path: dist/*.deb
 
   iso:
-    needs: test
+    needs: deb
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 300
@@ -56,21 +83,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Versione
-        run: echo "VERSION=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' uos/__init__.py)" >> "$GITHUB_ENV"
+      - name: Version
+        run: echo "VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)" >> "$GITHUB_ENV"
 
-      # /mnt è il disco grande del runner (~70 GB liberi)
-      - name: Build della ISO (Debian trixie, live-build)
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deb-*
+          path: debs
+          merge-multiple: true
+
+      # /mnt is the runner's big disk (~70 GB free)
+      - name: Build the ISO (Debian trixie, live-build)
         run: |
           sudo mkdir -p /mnt/uos
           df -h / /mnt
           docker run --rm --privileged -v "$PWD:/src:ro" -v /mnt/uos:/work debian:trixie sh -euxc '
             apt-get update
             apt-get install -y --no-install-recommends live-build debootstrap make dpkg-dev ca-certificates
-            WORK=/work/amd64 ARCH=amd64 /src/build/build-iso.sh'
+            UOS_DEB=$(ls /src/debs/unios_*_amd64.deb) WORK=/work/amd64 ARCH=amd64 /src/build/build-iso.sh'
           ls -lh /mnt/uos/amd64/*.iso
 
-      - name: Collaudo della ISO in QEMU
+      - name: Test the ISO in QEMU
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends qemu-system-x86
@@ -81,7 +114,7 @@ jobs:
           sudo chmod a+r /mnt/uos/amd64/*.iso
           LOG=boot-test.log ./build/ci/boot-test.sh /mnt/uos/amd64
 
-      - name: Log del collaudo
+      - name: Boot test log
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -89,33 +122,33 @@ jobs:
           path: boot-test.log
           if-no-files-found: ignore
 
-      - name: Prepara i file della release
+      - name: Prepare the release files
         run: |
           DIST=/mnt/uos/dist
           sudo mkdir -p "$DIST" && sudo chown "$(id -u)" "$DIST"
           NAME="UniOS-$VERSION-amd64.iso"
           cp /mnt/uos/amd64/*.iso "$DIST/$NAME"
-          cp /mnt/uos/amd64/config/packages.chroot/unios_*_all.deb "$DIST/"
-          (cd "$DIST" && sha256sum "$NAME" unios_*_all.deb > SHA256SUMS)
-          # Le release GitHub accettano file fino a 2 GiB: oltre, la ISO va in parti
+          cp debs/unios_*.deb "$DIST/"
+          (cd "$DIST" && sha256sum "$NAME" unios_*.deb > SHA256SUMS)
+          # GitHub releases accept files up to 2 GiB: beyond that the ISO is split
           NOTES=/mnt/uos/notes.md
-          sed -e '/^<!-- parti -->/,/^<!-- \/parti -->/d' -e "s/@VERSION@/$VERSION/g" -e "s/@NAME@/$NAME/g" \
+          sed -e '/^<!-- parts -->/,/^<!-- \/parts -->/d' -e "s/@VERSION@/$VERSION/g" -e "s/@NAME@/$NAME/g" \
             build/ci/release-notes.md > "$NOTES"
           if [ "$(stat -c %s "$DIST/$NAME")" -gt 2000000000 ]; then
             split -b 1900M -d -a 1 "$DIST/$NAME" "$DIST/$NAME.part"
             rm "$DIST/$NAME"
-            sed -n '/^<!-- parti -->/,/^<!-- \/parti -->/p' build/ci/release-notes.md \
+            sed -n '/^<!-- parts -->/,/^<!-- \/parts -->/p' build/ci/release-notes.md \
               | sed -e '/^<!--/d' -e "s/@NAME@/$NAME/g" >> "$NOTES"
           fi
           ls -lh "$DIST"
 
-      - name: Pubblica la release
-        if: startsWith(github.ref, 'refs/tags/v') || inputs.pubblica
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}-anteprima.{1}', env.VERSION, github.run_number) }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}-preview.{1}', env.VERSION, github.run_number) }}
           target_commitish: ${{ github.sha }}
-          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('UniOS {0}', github.ref_name) || format('UniOS {0} (anteprima {1})', env.VERSION, github.run_number) }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('UniOS {0}', github.ref_name) || format('UniOS {0} (preview {1})', env.VERSION, github.run_number) }}
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
           body_path: /mnt/uos/notes.md
           files: /mnt/uos/dist/*

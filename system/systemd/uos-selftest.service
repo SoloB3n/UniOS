@@ -1,14 +1,14 @@
 [Unit]
-Description=Autoverifica di UniOS (solo con il parametro uos.selftest)
+Description=UniOS self-test (only with the uos.selftest kernel parameter)
 ConditionKernelCommandLine=uos.selftest
 After=multi-user.target network.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/lib/uos/uos-selftest
-StandardOutput=tty
-StandardError=tty
-TTYPath=/dev/ttyS0
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStopSec=15
 
 [Install]
 WantedBy=multi-user.target

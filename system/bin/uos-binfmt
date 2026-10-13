@@ -1,4 +1,4 @@
 #!/bin/sh
-# Interprete invocato dal kernel (binfmt_misc) quando si esegue direttamente
-# un .exe o un binario Mach-O: il kernel passa il percorso del file e gli argomenti.
+# Interpreter called by the kernel (binfmt_misc) when an .exe or a Mach-O
+# binary is executed directly: the kernel passes the file path and arguments.
 exec /usr/bin/uos run -- "$@"

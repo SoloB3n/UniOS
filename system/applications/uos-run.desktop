@@ -1,8 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Avvia con UniOS
-Name[en]=Run with UniOS
-Comment=Avvia programmi Windows e macOS
+Name=Run with UniOS
+Name[it]=Avvia con UniOS
+Comment=Run Windows and macOS programs
+Comment[it]=Avvia programmi Windows e macOS
 Exec=uos run %f
 Icon=application-x-executable
 Terminal=false
@@ -11,6 +12,6 @@ MimeType=application/x-ms-dos-executable;application/x-msdownload;application/vn
 Actions=install;
 
 [Desktop Action install]
-Name=Installa con UniOS
-Name[en]=Install with UniOS
+Name=Install with UniOS
+Name[it]=Installa con UniOS
 Exec=uos install %f

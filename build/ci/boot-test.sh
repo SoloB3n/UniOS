@@ -1,7 +1,7 @@
 #!/bin/sh
-# Avvia la ISO in QEMU con il parametro uos.selftest e verifica l'esito
-# dell'autoverifica (system/bin/uos-selftest) letto dalla porta seriale.
-# Uso: build/ci/boot-test.sh <directory di lavoro di live-build> [timeout in secondi]
+# Boot the ISO in QEMU with the uos.selftest parameter and check the result of
+# the self-test (system/bin/uos-selftest) read from the serial port.
+# Usage: build/ci/boot-test.sh <live-build work directory> [timeout in seconds]
 set -eu
 
 WORK=$1
@@ -15,22 +15,24 @@ ACCEL="-accel tcg"
 if [ -w /dev/kvm ]; then
     ACCEL="-accel kvm -cpu host"
 else
-    echo "KVM non disponibile: emulazione software, sarà lenta" >&2
+    echo "KVM not available: software emulation, this will be slow" >&2
 fi
 
-# Avvio diretto di kernel e initrd: niente menu del bootloader da attraversare.
-# live-boot trova comunque il filesystem nella ISO collegata come CD-ROM.
+# Boot kernel and initrd directly: no bootloader menu to go through.
+# live-boot still finds the filesystem in the ISO attached as a CD-ROM.
+# "noprompt" skips live-boot's "remove the medium and press ENTER" at shutdown.
 timeout "$TIMEOUT" qemu-system-x86_64 $ACCEL -m 4096 -smp 2 \
     -cdrom "$ISO" -kernel "$KERNEL" -initrd "$INITRD" \
-    -append "boot=live components console=ttyS0,115200 systemd.unit=multi-user.target uos.selftest" \
+    -append "boot=live components noprompt console=ttyS0,115200 systemd.unit=multi-user.target uos.selftest" \
     -nographic -no-reboot -nic user,model=virtio-net-pci \
     < /dev/null 2>&1 | tee "$LOG" || true
 
 echo
-grep "UOS-SELFTEST:" "$LOG" || true
-if grep -q "UOS-SELFTEST: RISULTATO OK" "$LOG"; then
-    echo "Collaudo della ISO riuscito"
+# Each result appears twice (console and kernel log): show it once
+grep -o "UOS-SELFTEST: .*" "$LOG" | tr -d '\r' | awk '!seen[$0]++' || true
+if grep -q "UOS-SELFTEST: RESULT OK" "$LOG"; then
+    echo "ISO test passed"
 else
-    echo "Collaudo della ISO FALLITO (log completo in $LOG)" >&2
+    echo "ISO test FAILED (full log in $LOG)" >&2
     exit 1
 fi

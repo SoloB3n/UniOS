@@ -1,5 +1,5 @@
-# Strati di compatibilità
-# Windows: Wine (wine32:i386 viene aggiunto dall'hook 0100) + gestione prefissi
+# Compatibility layers
+# Windows: Wine (wine32:i386 is added by hook 0100) + prefix management
 wine
 winetricks
 #if ARCHITECTURES amd64
@@ -8,15 +8,13 @@ wine64
 fonts-wine
 # MS-DOS
 dosbox
-# Emulazione CPU per binari Linux di altre architetture (ARM, RISC-V...)
+# CPU emulation for Linux binaries of other architectures (ARM, RISC-V...)
 qemu-user
 qemu-user-binfmt
 binfmt-support
-# Immagini .dmg di macOS (7z/7zz leggono DMG, HFS+ e APFS)
+# macOS .dmg images (7z/7zz read DMG, HFS+ and APFS)
 7zip
-# Formati di pacchetto Linux universali
+# Universal Linux package formats
 flatpak
-# Runtime Java (Wine scarica da sé wine-mono per i programmi .NET)
+# Java runtime (Wine downloads wine-mono by itself for .NET programs)
 default-jre
-# Requisiti del dispatcher uos
-python3
